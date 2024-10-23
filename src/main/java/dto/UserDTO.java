@@ -17,6 +17,6 @@ public class UserDTO {
     private List<ImageDTO> images = new ArrayList<>();
     private List<CommentDTO> comments = new ArrayList<>();;
     private List<LikeDislikeDTO> likeDislikes = new ArrayList<>();;
-    private String role;
+    private List<RoleDTO> roles;
 
 }

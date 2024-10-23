@@ -3,11 +3,13 @@ package utils;
 import dto.CommentDTO;
 import dto.ImageDTO;
 import dto.LikeDislikeDTO;
+import dto.RoleDTO;
 import dto.TagDTO;
 import dto.UserDTO;
 import entity.Comment;
 import entity.Image;
 import entity.LikeDislike;
+import entity.Role;
 import entity.Tag;
 import entity.User;
 import java.util.stream.Collectors;
@@ -22,7 +24,10 @@ public class Utils {
         userDTO.setUsername(user.getUsername());
         userDTO.setEmail(user.getEmail());
         userDTO.setRegistrationDate(user.getRegistrationDate());
-        userDTO.setRole(user.getRole());
+
+        if(user.getRoles() != null){
+            userDTO.setRoles(mapRoleListEntityToRoleListDTO(user.getRoles()));
+        }
         return userDTO;
     }
 
@@ -32,12 +37,14 @@ public class Utils {
         userDTO.setUsername(user.getUsername());
         userDTO.setEmail(user.getEmail());
         userDTO.setRegistrationDate(user.getRegistrationDate());
-        userDTO.setRole(user.getRole());
 
         if(!user.getImages().isEmpty()){
             userDTO.setImages(user.getImages().stream()
             .map(Utils::mapImageEntityToDto)
             .collect(Collectors.toList()));
+        }
+        if(user.getRoles() != null){
+            userDTO.setRoles(mapRoleListEntityToRoleListDTO(user.getRoles()));
         }
         return userDTO;
     }
@@ -70,6 +77,13 @@ public class Utils {
     tagDTO.setId(tag.getId());
     tagDTO.setName(tag.getName());
     return tagDTO;    
+    }
+
+    public static RoleDTO mapRoleEntityToDTO(Role role){
+        RoleDTO roleDTO = new RoleDTO();
+        roleDTO.setId(role.getId());
+        roleDTO.setName(role.getName());
+        return roleDTO;
     }
 
     public static CommentDTO mapCommentEntityToDTO(Comment comment){
@@ -105,5 +119,8 @@ public class Utils {
     }
     public static List<TagDTO> mapTagListEntityToTagListDTO(List<Tag> tagList){
         return tagList.stream().map(Utils::mapTagEntityToDto).collect(Collectors.toList());
+    }
+    public static List<RoleDTO> mapRoleListEntityToRoleListDTO(List<Role> roleList){
+        return roleList.stream().map(Utils::mapRoleEntityToDTO).collect(Collectors.toList());
     }
 }
