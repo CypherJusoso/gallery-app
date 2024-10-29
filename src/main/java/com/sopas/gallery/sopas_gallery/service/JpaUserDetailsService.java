@@ -23,11 +23,11 @@ public class JpaUserDetailsService implements UserDetailsService{
 
     @Transactional(readOnly = true)
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userOptional = userRepository.findByUsername(username);
+    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+        Optional<User> userOptional = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
     
         if (userOptional.isEmpty()) {
-            throw new UsernameNotFoundException(String.format("Username %s doesn't exists.", username));
+            throw new UsernameNotFoundException(String.format("Username with username or email %s doesn't exists.", usernameOrEmail));
         }
         User user = userOptional.orElseThrow();
 

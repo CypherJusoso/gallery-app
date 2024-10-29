@@ -2,6 +2,8 @@ package com.sopas.gallery.sopas_gallery.service.interfac;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.sopas.gallery.sopas_gallery.dto.Response;
 import com.sopas.gallery.sopas_gallery.entity.Image;
 import com.sopas.gallery.sopas_gallery.entity.Tag;
@@ -10,7 +12,7 @@ import com.sopas.gallery.sopas_gallery.entity.Tag;
 
 public interface IImageService {
 
-    Response uploadImage(Image image);
+    Response uploadImage(Image image, MultipartFile photo);
 
     Response getImagesByUserId(Long userId);
 
