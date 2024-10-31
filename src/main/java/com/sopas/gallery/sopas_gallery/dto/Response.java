@@ -20,7 +20,9 @@ public class Response {
     private LikeDislikeDTO likeDislike;
     private ImageDTO imageDTO;
     private CommentDTO commentDTO;
+    private List<CommentDTO> commentsList;
     private List<UserDTO> usersList;
+    private List<ImageDTO> imagesList;
     private List<TagDTO> tagsList;
     private List<LikeDislikeDTO> likeDislikeList;
 

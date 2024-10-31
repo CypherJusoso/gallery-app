@@ -117,6 +117,9 @@ public class Utils {
     public static List<UserDTO> mapUserListEntityToUserListDTO(List<User> userList){
         return userList.stream().map(Utils::mapUserEntityToDto).collect(Collectors.toList());
     }
+    public static List<CommentDTO> mapCommentListEntityToCommentListDTO(List<Comment> commentList){
+        return commentList.stream().map(Utils::mapCommentEntityToDTO).collect(Collectors.toList());
+    }
     public static List<ImageDTO> mapImageListEntityToImageListDTO(List<Image> imageList){
         return imageList.stream().map(Utils::mapImageEntityToDto).collect(Collectors.toList());
     }
@@ -125,5 +128,8 @@ public class Utils {
     }
     public static List<RoleDTO> mapRoleListEntityToRoleListDTO(List<Role> roleList){
         return roleList.stream().map(Utils::mapRoleEntityToDTO).collect(Collectors.toList());
+    }
+    public static List<LikeDislikeDTO> mapLikeDislikeListEntityToLikeDislikeListDTO(List<LikeDislike> likeDislikes){
+        return likeDislikes.stream().map(Utils::mapLikeDislikeEntityToDTO).collect(Collectors.toList());
     }
 }

@@ -1,14 +1,11 @@
 package com.sopas.gallery.sopas_gallery.service.interfac;
 
-import com.sopas.gallery.sopas_gallery.dto.LoginRequest;
 import com.sopas.gallery.sopas_gallery.dto.Response;
 import com.sopas.gallery.sopas_gallery.entity.User;
 
 public interface IUserService {
 
     Response register(User user);
-
-    Response login(LoginRequest loginRequest);
 
     Response getAllUsers();
 
@@ -21,5 +18,7 @@ public interface IUserService {
     boolean existsByEmail(String email);
 
     boolean existsByUsername(String username);
+
+    
 
 }

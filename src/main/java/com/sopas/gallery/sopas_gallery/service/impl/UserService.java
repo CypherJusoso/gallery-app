@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sopas.gallery.sopas_gallery.dto.LoginRequest;
 import com.sopas.gallery.sopas_gallery.dto.Response;
 import com.sopas.gallery.sopas_gallery.dto.UserDTO;
 import com.sopas.gallery.sopas_gallery.entity.Role;
@@ -67,21 +66,6 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Response login(LoginRequest loginRequest) {
-        Response response = new Response();
-
-        try {
-            
-        }catch(OurException e){
-
-        } 
-        catch (Exception e) {
-            // TODO: handle exception
-        }
-        return response;
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public Response getAllUsers() {
         Response response = new Response();
@@ -101,21 +85,66 @@ public class UserService implements IUserService {
 
     @Override
     public Response deleteUser(String userId) {
+        Response response = new Response();
 
-        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+        try {
+            userRepository.findById(Long.valueOf(userId)).orElseThrow(()-> new OurException("User Not Found."));
+            userRepository.deleteById(Long.valueOf(userId));
+            response.setStatusCode(200);
+            response.setMessage("User Succesfully Deleted");
+        }catch(OurException e){
+            response.setStatusCode(404);
+            response.setMessage(e.getMessage());
+        } 
+        catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error Deleting User " + e.getMessage());
+        }
+        return response;
     }
 
     @Override
     public Response getUserById(String userId) {
+        Response response = new Response();
 
-        throw new UnsupportedOperationException("Unimplemented method 'getUserById'");
+        try {
+            User user = userRepository.findById(Long.valueOf(userId)).orElseThrow(()-> new OurException("User Not Found."));
+            UserDTO userDTO = Utils.mapUserEntityToDto(user);
+            response.setStatusCode(200);
+            response.setMessage("User Found Successfully");
+            response.setUser(userDTO);
+        }catch(OurException e){
+            response.setStatusCode(404);
+            response.setMessage(e.getMessage());
+        }
+         catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error Finding User " + e.getMessage());
+        }
+        return response;
     }
 
     @Override
     public Response getMyInfo(String email) {
 
-        throw new UnsupportedOperationException("Unimplemented method 'getMyInfo'");
-    }
+        Response response = new Response();
+
+        try {
+            User user = userRepository.findByEmail(email).orElseThrow(()-> new OurException("User Not Found"));
+            UserDTO userDTO = Utils.mapUserEntityToDto(user);
+            response.setStatusCode(200);
+            response.setMessage("User Found Successfully");
+            response.setUser(userDTO);
+        }catch(OurException e){
+            response.setStatusCode(404);
+            response.setMessage(e.getMessage());
+        }
+         catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error Finding User " + e.getMessage());
+        }   
+        return response;
+     }
 
     @Override
     public boolean existsByEmail(String email) {

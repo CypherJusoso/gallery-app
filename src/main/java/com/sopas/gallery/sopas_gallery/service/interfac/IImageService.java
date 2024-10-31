@@ -5,14 +5,13 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sopas.gallery.sopas_gallery.dto.Response;
-import com.sopas.gallery.sopas_gallery.entity.Image;
 import com.sopas.gallery.sopas_gallery.entity.Tag;
 
 
 
 public interface IImageService {
 
-    Response uploadImage(Image image, MultipartFile photo);
+    Response uploadImage(MultipartFile photo, String tagsInput);
 
     Response getImagesByUserId(Long userId);
 
@@ -24,7 +23,7 @@ public interface IImageService {
 
     Response getAllImages();
 
-    //Title, Tags
-    Response updateImage(Long imageId, String title, String tags);
+ 
+    Response updateImage(Long imageId, MultipartFile photo, String tagsInput);
 
 }

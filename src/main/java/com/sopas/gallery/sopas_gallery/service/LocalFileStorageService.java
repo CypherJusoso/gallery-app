@@ -30,7 +30,7 @@ public class LocalFileStorageService {
         }
     }
 
-    public String saveImage(MultipartFile file, Long userId) throws java.io.IOException{
+    public String saveImage(MultipartFile file, String userName) throws java.io.IOException{
 
         //Validar archivo
         String contentType = file.getContentType();
@@ -43,7 +43,7 @@ public class LocalFileStorageService {
         }
 
         //Genero el directorio único para el usuario
-        String userDir = baseUploadDir + userId.toString() + '/';
+        String userDir = baseUploadDir + userName.toString() + '/';
         createUserDirIfNotExists(userDir);
 
         //Generar nombre único para el archivo

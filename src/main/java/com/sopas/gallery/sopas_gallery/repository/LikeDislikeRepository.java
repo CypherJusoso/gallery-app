@@ -20,4 +20,8 @@ public interface LikeDislikeRepository extends JpaRepository<LikeDislike, Long> 
     
     long countByImageAndIsLikeFalse(Image image);
 
+    LikeDislike findByUserIdAndImageId(Long id, Long id2);
+
+    List<LikeDislike> findByImageIdAndIsLike(Long imageId, Boolean isLike);
+
 }
