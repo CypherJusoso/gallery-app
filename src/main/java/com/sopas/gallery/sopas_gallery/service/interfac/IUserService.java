@@ -9,9 +9,11 @@ public interface IUserService {
 
     Response getAllUsers();
 
-    Response deleteUser(String userId);
+    Response getImagesByUserId(Long userId);
 
-    Response getUserById(String userId);
+    Response deleteUser(Long userId);
+
+    Response getUserById(Long userId);
 
     Response getMyInfo(String email);
 

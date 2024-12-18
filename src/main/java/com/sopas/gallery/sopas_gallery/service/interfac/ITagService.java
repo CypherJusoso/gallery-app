@@ -12,4 +12,6 @@ public interface ITagService {
     Response getTagById(Long tagId);
 
     Response getTagByName(String name);
+
+    Response deleteTag(Long tagId);
 }

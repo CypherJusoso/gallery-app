@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.sopas.gallery.sopas_gallery.dto.ImageDTO;
 import com.sopas.gallery.sopas_gallery.dto.Response;
-import com.sopas.gallery.sopas_gallery.dto.UserDTO;
 import com.sopas.gallery.sopas_gallery.entity.Image;
 import com.sopas.gallery.sopas_gallery.entity.Tag;
 import com.sopas.gallery.sopas_gallery.entity.User;
@@ -98,32 +97,7 @@ public class ImageService implements IImageService {
 
     @Override
     @Transactional(readOnly = true)
-    public Response getImagesByUserId(Long userId) {
-        Response response = new Response();
-        try {
-           User user = userRepository.findById(userId).orElseThrow(()-> new OurException("User Not Found."));
-           List<Image> images = imageRepository.findByUserId(userId);
-           user.setImages(images);
-           UserDTO userDTO = Utils.mapUserEntityToDtoPlusImages(user);
-           List<ImageDTO> imageDTOs = Utils.mapImageListEntityToImageListDTO(images);
-           response.setStatusCode(200);
-           response.setMessage("Succesfully Found Images");
-           response.setImagesList(imageDTOs);
-           response.setUser(userDTO);
-        }catch(OurException e){
-            response.setStatusCode(404);
-            response.setMessage(e.getMessage());
-        }
-         catch (Exception e) {
-            response.setStatusCode(500);
-            response.setMessage("Error Saving a New Image " + e.getMessage());
-        }
-        return response;
-        }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Response getImagesByTags(List<Tag> tags) {
+    public Response getImagesByTags(String tags) {
         Response response = new Response();
 
 
@@ -133,7 +107,8 @@ public class ImageService implements IImageService {
             return response;
         }
         try {
-            List<Image> images = imageRepository.findByTags(tags, tags.size());
+            List<Tag> tagList = findTags(tags);
+            List<Image> images = imageRepository.findByTags(tagList, tagList.size());
             List<ImageDTO> imageDTOs = Utils.mapImageListEntityToImageListDTO(images);
             response.setStatusCode(200);
             response.setMessage("Images found");
@@ -174,7 +149,16 @@ public class ImageService implements IImageService {
         Response response = new Response();
 
         try {
-            imageRepository.findById(imageId).orElseThrow(()-> new OurException("Image Not Found"));
+           Image image = imageRepository.findById(imageId).orElseThrow(()-> new OurException("Image Not Found"));
+            
+            String authUsername = getCurrentUsername();
+
+            if(!image.getUser().getUsername().equals(authUsername) && !isAdmin(authUsername)){
+                response.setStatusCode(403);
+                response.setMessage("You do not have permission to delete this image.");
+                return response;
+            }
+            
             imageRepository.deleteById(imageId);
             response.setStatusCode(200);
             response.setMessage("Image Successfully Deleted");
@@ -215,17 +199,24 @@ public class ImageService implements IImageService {
         Response response = new Response();
 
         try {
+            Image image = imageRepository.findById(imageId).orElseThrow(()-> new OurException("Image Not Found"));
+
             String currentUsername = getCurrentUsername();
             if(currentUsername == null){
                 response.setStatusCode(403);
                 response.setMessage("User is not authenticated.");
                 return response;
             }    
+
+            if(!image.getUser().getUsername().equals(currentUsername) && !isAdmin(currentUsername)){
+                response.setStatusCode(403);
+                response.setMessage("You do not have permission to delete this image.");
+                return response;
+            }
             String imagePath = null;
             if(photo != null && !photo.isEmpty()){
                 imagePath = fileStorageService.saveImage(photo, currentUsername);
             }
-            Image image = imageRepository.findById(imageId).orElseThrow(()-> new OurException("Image Not Found"));
             if(tagsInput != null){
             List<Tag> tags = processTags(tagsInput);
         image.setTags(tags);
@@ -269,11 +260,31 @@ public class ImageService implements IImageService {
         return tags;
     }
 
+    private List<Tag> findTags(String tagsInput) {
+        List<Tag> tags = new ArrayList<>();
+        if (tagsInput != null && !tagsInput.trim().isEmpty()) {
+            String[] tagNames = tagsInput.split("\\s+");
+            for (String tagName : tagNames) {
+                String trimmedTag = tagName.trim();
+                if (!trimmedTag.isEmpty()) {
+                    tagRepository.findByName(trimmedTag).ifPresent(tags::add);
+                }
+            }
+        }
+        return tags;
+    }
+
     private String getCurrentUsername(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof AnonymousAuthenticationToken) {
         return null;
     }
     return authentication.getName();
+    }
+
+    private boolean isAdmin(String username){
+        return userRepository.findByUsername(username)
+        .map(User::isAdmin)
+        .orElse(false);
     }
 }

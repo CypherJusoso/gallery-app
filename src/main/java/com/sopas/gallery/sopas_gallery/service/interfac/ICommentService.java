@@ -12,4 +12,6 @@ public interface ICommentService {
     Response getCommentsByUserId(Long userId);
 
     Response deleteComment(Long commentId);
+
+    Response updateComment(Long commentId, String newContent);
 }
