@@ -53,7 +53,7 @@ public class User {
     private String password;
 
     @Column(nullable = false, unique = true)
-    private LocalDateTime registrationDate = LocalDateTime.now();
+    private LocalDateTime registrationDate;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Image> images = new ArrayList<>();
@@ -64,7 +64,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<LikeDislike> likeDislikes = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "users_roles",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -78,6 +78,7 @@ public class User {
 
     @PrePersist
     public void prePersist(){
+        this.registrationDate = LocalDateTime.now();
         enabled = true;
     }
     @Transient

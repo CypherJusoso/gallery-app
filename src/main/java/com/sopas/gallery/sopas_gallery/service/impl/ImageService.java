@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ import com.sopas.gallery.sopas_gallery.utils.Utils;
 
 import java.time.LocalDateTime;
 
+@Service
 public class ImageService implements IImageService {
 
     @Autowired

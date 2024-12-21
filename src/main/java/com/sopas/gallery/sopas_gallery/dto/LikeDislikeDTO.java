@@ -9,6 +9,6 @@ private Long id;
 
     private ImageDTO image;
     private UserDTO user;
-    private Boolean isLike;
+    private Boolean liked;
 
 }

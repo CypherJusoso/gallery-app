@@ -22,14 +22,15 @@ import com.sopas.gallery.sopas_gallery.entity.User;
 import com.sopas.gallery.sopas_gallery.service.interfac.IUserService;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
+@Slf4j
 @CrossOrigin(origins = {"http://localhost:3000"})
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 public class UserController {
 
     @Autowired

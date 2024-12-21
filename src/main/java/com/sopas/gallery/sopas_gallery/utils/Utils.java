@@ -103,7 +103,7 @@ public class Utils {
     public static LikeDislikeDTO mapLikeDislikeEntityToDTO(LikeDislike likeDislike){
         LikeDislikeDTO likeDislikeDTO = new LikeDislikeDTO();
         likeDislikeDTO.setId(likeDislike.getId());
-        likeDislikeDTO.setIsLike(likeDislike.getIsLike());
+        likeDislikeDTO.setLiked(likeDislike.getLiked());
 
         if(likeDislike.getImage() != null){
             likeDislikeDTO.setImage(Utils.mapImageEntityToDto(likeDislike.getImage()));

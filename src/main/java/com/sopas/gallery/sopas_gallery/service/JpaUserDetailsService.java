@@ -29,13 +29,14 @@ public class JpaUserDetailsService implements UserDetailsService{
         if (userOptional.isEmpty()) {
             throw new UsernameNotFoundException(String.format("Username with username or email %s doesn't exists.", usernameOrEmail));
         }
-        User user = userOptional.orElseThrow();
+        User user = userOptional.get();
 
         List<GrantedAuthority> authorities = user.getRoles().stream()
         .map(role -> new SimpleGrantedAuthority(role.getName()))
         .collect(Collectors.toList());
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+        return new org.springframework.security.core.userdetails.User(
+        user.getUsername(),
         user.getPassword(), 
         user.isEnabled(),
         true,

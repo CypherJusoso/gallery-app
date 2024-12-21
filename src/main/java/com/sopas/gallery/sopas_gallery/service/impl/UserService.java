@@ -120,7 +120,11 @@ public class UserService implements IUserService {
            UserDTO userDTO = Utils.mapUserEntityToDtoPlusImages(user);
            List<ImageDTO> imageDTOs = Utils.mapImageListEntityToImageListDTO(images);
            response.setStatusCode(200);
+           if(imageDTOs.isEmpty()){
+            response.setMessage("This user has not uploaded any images");
+           }else{
            response.setMessage("Succesfully Found Images");
+        }
            response.setImagesList(imageDTOs);
            response.setUser(userDTO);
         }catch(OurException e){

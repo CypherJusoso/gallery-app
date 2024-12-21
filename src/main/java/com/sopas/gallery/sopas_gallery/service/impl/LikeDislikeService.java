@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import com.sopas.gallery.sopas_gallery.repository.UserRepository;
 import com.sopas.gallery.sopas_gallery.service.interfac.ILikeDislikeService;
 import com.sopas.gallery.sopas_gallery.utils.Utils;
 
+@Service
 public class LikeDislikeService implements ILikeDislikeService {
 
     @Autowired
@@ -43,13 +45,13 @@ public class LikeDislikeService implements ILikeDislikeService {
         try {
             LikeDislike existingReaction = likeDislikeRepository.findByUserIdAndImageId(likeDislike.getUser().getId(), likeDislike.getImage().getId());
             if(existingReaction != null){
-            if(existingReaction.getIsLike().equals(likeDislike.getIsLike())){
+            if(existingReaction.getLiked().equals(likeDislike.getLiked())){
                 likeDislikeRepository.delete(existingReaction);
                 response.setStatusCode(200);
                 response.setMessage("Reaction deleted successfully");
                 return response;
             }else {
-            existingReaction.setIsLike(likeDislike.getIsLike());
+            existingReaction.setLiked(likeDislike.getLiked());
             likeDislikeRepository.save(existingReaction);
             response.setStatusCode(200);
             response.setMessage("Reaction updated successfully.");
@@ -81,7 +83,7 @@ public class LikeDislikeService implements ILikeDislikeService {
     public Response getLikesByImageId(Long imageId) {
         Response response = new Response();
         try {
-            List<LikeDislike> likes = likeDislikeRepository.findByImageIdAndIsLike(imageId, true);
+            List<LikeDislike> likes = likeDislikeRepository.findByImageIdAndLiked(imageId, true);
             response.setStatusCode(200);
             response.setMessage("Likes fetched successfully");
             List<LikeDislikeDTO> likeDislikeDTO = Utils.mapLikeDislikeListEntityToLikeDislikeListDTO(likes);
@@ -98,7 +100,7 @@ public class LikeDislikeService implements ILikeDislikeService {
     public Response getDislikesByImageId(Long imageId) {
         Response response = new Response();
         try {
-            List<LikeDislike> likes = likeDislikeRepository.findByImageIdAndIsLike(imageId, false);
+            List<LikeDislike> likes = likeDislikeRepository.findByImageIdAndLiked(imageId, false);
             response.setStatusCode(200);
             response.setMessage("Dislikes fetched successfully");
             List<LikeDislikeDTO> likeDislikeDTO = Utils.mapLikeDislikeListEntityToLikeDislikeListDTO(likes);

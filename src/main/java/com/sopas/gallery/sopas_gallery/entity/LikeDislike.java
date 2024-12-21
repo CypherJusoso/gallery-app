@@ -25,5 +25,5 @@ public class LikeDislike {
     private User user;
 
     @Column(nullable = false)
-    private Boolean isLike;
+    private Boolean liked;
 }
