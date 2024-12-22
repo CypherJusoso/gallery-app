@@ -24,4 +24,7 @@ public interface LikeDislikeRepository extends JpaRepository<LikeDislike, Long> 
 
     List<LikeDislike> findByImageIdAndLiked(Long imageId, Boolean liked);
 
+    long countByImageIdAndLiked(Long imageId, boolean liked);
+
+
 }

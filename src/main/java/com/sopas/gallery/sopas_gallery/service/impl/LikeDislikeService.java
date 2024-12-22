@@ -9,16 +9,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import com.sopas.gallery.sopas_gallery.dto.LightLikeDislikeDTO;
 import com.sopas.gallery.sopas_gallery.dto.LikeDislikeDTO;
 import com.sopas.gallery.sopas_gallery.dto.Response;
+import com.sopas.gallery.sopas_gallery.entity.Image;
 import com.sopas.gallery.sopas_gallery.entity.LikeDislike;
 import com.sopas.gallery.sopas_gallery.entity.User;
 import com.sopas.gallery.sopas_gallery.exception.OurException;
+import com.sopas.gallery.sopas_gallery.repository.ImageRepository;
 import com.sopas.gallery.sopas_gallery.repository.LikeDislikeRepository;
 import com.sopas.gallery.sopas_gallery.repository.UserRepository;
 import com.sopas.gallery.sopas_gallery.service.interfac.ILikeDislikeService;
 import com.sopas.gallery.sopas_gallery.utils.Utils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class LikeDislikeService implements ILikeDislikeService {
 
@@ -27,10 +33,13 @@ public class LikeDislikeService implements ILikeDislikeService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private ImageRepository imageRepository;
 
     @Override
     @Transactional
-    public Response addLikeDislike(LikeDislike likeDislike) {
+    public Response addLikeDislike(LikeDislike likeDislike, Long imageId) {
         Response response = new Response();
 
         String authUsername = getCurrentUsername();
@@ -41,38 +50,59 @@ public class LikeDislikeService implements ILikeDislikeService {
             return response;
         }
 
-        User user = userRepository.findByUsername(authUsername).orElseThrow(()-> new OurException("User Not Found"));
+        User user = userRepository.findByUsername(authUsername)
+            .orElseThrow(()-> new OurException("User Not Found"));
+            log.info("User retrieved from SecurityContextHolder {}", user.getUsername());
+
         try {
-            LikeDislike existingReaction = likeDislikeRepository.findByUserIdAndImageId(likeDislike.getUser().getId(), likeDislike.getImage().getId());
+
+            Image image = imageRepository.findById(imageId)
+                .orElseThrow(() -> new OurException("Image Not Found"));
+
+            LikeDislike existingReaction = likeDislikeRepository.findByUserIdAndImageId(user.getId(), imageId);
+            
             if(existingReaction != null){
-            if(existingReaction.getLiked().equals(likeDislike.getLiked())){
-                likeDislikeRepository.delete(existingReaction);
-                response.setStatusCode(200);
-                response.setMessage("Reaction deleted successfully");
-                return response;
-            }else {
-            existingReaction.setLiked(likeDislike.getLiked());
-            likeDislikeRepository.save(existingReaction);
-            response.setStatusCode(200);
-            response.setMessage("Reaction updated successfully.");
-            return response;
+            
+                if(existingReaction.getLiked().equals(likeDislike.getLiked())){
+                    likeDislikeRepository.delete(existingReaction);
+                    response.setStatusCode(200);
+                    response.setMessage("Reaction deleted successfully");
+                    return response;
+                } else {
+                    existingReaction.setLiked(likeDislike.getLiked());
+                    likeDislikeRepository.save(existingReaction);
+                    response.setStatusCode(200);
+                    response.setMessage("Reaction updated successfully.");
+                    return response;
         }
         }else {
             likeDislike.setUser(user);
+            likeDislike.setImage(image);
             likeDislikeRepository.save(likeDislike);
-            LikeDislikeDTO likeDislikeDTO = Utils.mapLikeDislikeEntityToDTO(likeDislike);
-            response.setLikeDislike(likeDislikeDTO);
+            log.info("User at the end from SecurityContextHolder 4{}", user.getUsername());
+
+            LightLikeDislikeDTO likeDislikeDTO = Utils.mapLikeDislikeEntityToLightDto(likeDislike);
+            log.info("User at the end from SecurityContextHolder 3{}", user.getUsername());
+
+            response.setData(likeDislikeDTO);
             response.setStatusCode(201);
+            log.info("User at the end from SecurityContextHolder2 {}", user.getUsername());
+
             response.setMessage("Reaction saved successfully");
+            log.info("User at the end from SecurityContextHolder {}", user.getUsername());
+
         }
 
         } catch (OurException e) {
             response.setStatusCode(404);
             response.setMessage(e.getMessage());
         } 
-         catch (Exception e) {
+        catch (Exception e) {
+            log.error("Unexpected error: ", e);
+            log.info("User at the catch from SecurityContextHolder {}", user.getId());
             response.setStatusCode(500);
-            response.setMessage("Error al guardar la reacción: " + e.getMessage());        
+            response.setMessage("Error al guardar la reacción: " + e.getMessage());
+            throw e; // Re-lanza la excepción si es necesario
         }
         return response;
     }
@@ -83,11 +113,10 @@ public class LikeDislikeService implements ILikeDislikeService {
     public Response getLikesByImageId(Long imageId) {
         Response response = new Response();
         try {
-            List<LikeDislike> likes = likeDislikeRepository.findByImageIdAndLiked(imageId, true);
+            Long likeCount = likeDislikeRepository.countByImageIdAndLiked(imageId, true);
             response.setStatusCode(200);
             response.setMessage("Likes fetched successfully");
-            List<LikeDislikeDTO> likeDislikeDTO = Utils.mapLikeDislikeListEntityToLikeDislikeListDTO(likes);
-            response.setLikeDislikeList(likeDislikeDTO);
+            response.setData(likeCount);
         } catch (Exception e) {
             response.setStatusCode(500);
             response.setMessage("Error Fething Likes: " + e.getMessage());
@@ -100,11 +129,10 @@ public class LikeDislikeService implements ILikeDislikeService {
     public Response getDislikesByImageId(Long imageId) {
         Response response = new Response();
         try {
-            List<LikeDislike> likes = likeDislikeRepository.findByImageIdAndLiked(imageId, false);
+            Long likeCount = likeDislikeRepository.countByImageIdAndLiked(imageId, false);
             response.setStatusCode(200);
             response.setMessage("Dislikes fetched successfully");
-            List<LikeDislikeDTO> likeDislikeDTO = Utils.mapLikeDislikeListEntityToLikeDislikeListDTO(likes);
-            response.setLikeDislikeList(likeDislikeDTO);
+            response.setData(likeCount);        
         } catch (Exception e) {
             response.setStatusCode(500);
             response.setMessage("Error Fething Dislikes: " + e.getMessage());

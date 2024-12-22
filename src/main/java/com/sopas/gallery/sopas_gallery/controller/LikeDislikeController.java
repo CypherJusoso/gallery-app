@@ -23,11 +23,11 @@ public class LikeDislikeController {
     @Autowired
     private ILikeDislikeService likeDislikeService;
 
-    @PostMapping()
+    @PostMapping("/add/{imageId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<Response> addLikeDislike(@RequestBody LikeDislike likeDislike) {
+    public ResponseEntity<Response> addLikeDislike(@RequestBody LikeDislike likeDislike, @PathVariable Long imageId) {
         
-        Response response = likeDislikeService.addLikeDislike(likeDislike);
+        Response response = likeDislikeService.addLikeDislike(likeDislike, imageId);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
     @GetMapping("/likes/{imageId}")

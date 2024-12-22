@@ -75,4 +75,20 @@ public class ImageController {
         Response response = imageService.deleteImage(imageId);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
+
+    @GetMapping("image-count-by-tag/{tagId}")
+    public ResponseEntity<Response> countImageByTag(@PathVariable Long tagId) {
+        Response response = new Response();
+        try {
+            int imageCount = imageService.countImagesByTag(tagId);
+            response.setStatusCode(200);
+            response.setMessage("Image count found successfully");
+            response.setData(imageCount);
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error Fetching Image Count: " + e.getMessage());
+        }
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+
+    }
 }

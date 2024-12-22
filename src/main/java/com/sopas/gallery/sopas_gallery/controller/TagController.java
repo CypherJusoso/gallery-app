@@ -36,7 +36,7 @@ public class TagController {
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
-    @GetMapping("/get-all")
+    @GetMapping("/all")
     public ResponseEntity<Response> getAllTags() {
         Response response = tagService.getAllTags();
         return ResponseEntity.status(response.getStatusCode()).body(response);
@@ -48,7 +48,7 @@ public class TagController {
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
-    @GetMapping()
+    @GetMapping("get-tag-by-name")
     public ResponseEntity<Response> getTagByName(@RequestParam String tagName) {
         Response response = tagService.getTagByName(tagName);
         return ResponseEntity.status(response.getStatusCode()).body(response);

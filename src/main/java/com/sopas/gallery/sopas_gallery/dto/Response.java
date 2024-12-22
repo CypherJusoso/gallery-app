@@ -25,5 +25,6 @@ public class Response {
     private List<ImageDTO> imagesList;
     private List<TagDTO> tagsList;
     private List<LikeDislikeDTO> likeDislikeList;
+    private Object data;
 
 }

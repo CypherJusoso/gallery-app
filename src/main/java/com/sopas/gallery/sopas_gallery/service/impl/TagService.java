@@ -10,11 +10,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sopas.gallery.sopas_gallery.dto.ImageDTO;
 import com.sopas.gallery.sopas_gallery.dto.Response;
 import com.sopas.gallery.sopas_gallery.dto.TagDTO;
+import com.sopas.gallery.sopas_gallery.entity.Image;
 import com.sopas.gallery.sopas_gallery.entity.Tag;
 import com.sopas.gallery.sopas_gallery.entity.User;
 import com.sopas.gallery.sopas_gallery.exception.OurException;
+import com.sopas.gallery.sopas_gallery.repository.ImageRepository;
 import com.sopas.gallery.sopas_gallery.repository.TagRepository;
 import com.sopas.gallery.sopas_gallery.repository.UserRepository;
 import com.sopas.gallery.sopas_gallery.service.interfac.ITagService;
@@ -32,6 +35,9 @@ public class TagService implements ITagService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
 
     @Override
     @Transactional
@@ -74,14 +80,22 @@ public class TagService implements ITagService {
         }  
 
     @Override
+    @Transactional(readOnly = true)
     public Response getTagById(Long tagId) {
         Response response = new Response();
         try {
-           Tag tag = tagRepository.findById(tagId).orElseThrow(()-> new OurException("Tag Not Found"));
-           TagDTO tagDTO = Utils.mapTagEntityToDto(tag);
+           Tag tag = tagRepository.findById(tagId)
+                    .orElseThrow(()-> new OurException("Tag Not Found"));
+           List<Image> images = imageRepository.findByTagId(tagId);
+           
+            TagDTO tagDTO = Utils.mapTagEntityToDto(tag);
+            List<ImageDTO> imageDTOs = Utils.mapImageListEntityToImageListDTO(images);
+            tagDTO.setImages(imageDTOs);
+
            response.setStatusCode(200);
            response.setMessage("Tag Found Successfully");
-           response.setTag(tagDTO);            
+           response.setTag(tagDTO);  
+
         }catch(OurException e){
             response.setStatusCode(404);
             response.setMessage(e.getMessage());
@@ -146,7 +160,8 @@ public class TagService implements ITagService {
 
     private boolean isAdmin(String username){
         return userRepository.findByUsername(username)
-        .map(User::isAdmin)
-        .orElse(false);
+        .map(user -> user.getRoles().stream()
+            .anyMatch(role-> "ROLE_ADMIN".equals(role.getName())))
+            .orElse(false);
     }
 }

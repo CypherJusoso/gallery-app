@@ -5,7 +5,7 @@ import com.sopas.gallery.sopas_gallery.entity.LikeDislike;
 
 public interface ILikeDislikeService {
 
-    Response addLikeDislike(LikeDislike likeDislike);
+    Response addLikeDislike(LikeDislike liked, Long imageId);
 
     Response getLikesByImageId(Long imageId);
 

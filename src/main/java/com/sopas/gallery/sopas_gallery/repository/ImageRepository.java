@@ -18,5 +18,10 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     List<Image> findByTags(@Param("tags") List<Tag> tags, @Param("tagCount") long tagCount);
 
     List<Image> findAllByOrderByUploadDateDesc();
+
+    @Query("SELECT i FROM Image i JOIN i.tags t WHERE t.id = :tagId")
+    List<Image> findByTagId(@Param("tagId") Long tagId);
     
+    @Query("SELECT COUNT(i) FROM Image i JOIN i.tags t WHERE t.id = :tagId")
+    int countImagesByTagId(@Param("tagId") Long tagId);
 }

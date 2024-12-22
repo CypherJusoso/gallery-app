@@ -21,4 +21,5 @@ public interface IImageService {
  
     Response updateImage(Long imageId, MultipartFile photo, String tagsInput);
 
+    int countImagesByTag(Long tagId);
 }

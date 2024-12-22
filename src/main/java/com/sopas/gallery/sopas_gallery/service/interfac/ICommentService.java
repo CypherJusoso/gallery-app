@@ -5,7 +5,7 @@ import com.sopas.gallery.sopas_gallery.entity.Comment;
 
 public interface ICommentService {
 
-    Response addComent(Comment comment);
+    Response addComent(Long imageId, Comment comment);
 
     Response getCommentsByImageId(Long imageId);
 

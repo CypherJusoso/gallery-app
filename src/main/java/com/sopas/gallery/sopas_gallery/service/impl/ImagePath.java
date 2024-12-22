@@ -2,7 +2,6 @@ package com.sopas.gallery.sopas_gallery.service.impl;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
@@ -19,7 +18,6 @@ public class ImagePath implements IImagePath{
   private final ResourceLoader resourceLoader;
     private final ImageRepository imageRepository;
 
-    @Autowired
     public ImagePath(ResourceLoader resourceLoader, ImageRepository imageRepository) {
         this.resourceLoader = resourceLoader;
         this.imageRepository = imageRepository;

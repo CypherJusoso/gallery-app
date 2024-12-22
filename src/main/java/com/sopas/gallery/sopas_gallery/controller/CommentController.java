@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sopas.gallery.sopas_gallery.dto.Response;
+import com.sopas.gallery.sopas_gallery.dto.UpdateCommentRequest;
 import com.sopas.gallery.sopas_gallery.entity.Comment;
 import com.sopas.gallery.sopas_gallery.service.interfac.ICommentService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,10 +28,10 @@ public class CommentController {
     @Autowired
     private ICommentService commentService;
 
-    @PostMapping("/add")
-    public ResponseEntity<Response> addComement(@RequestBody Comment comment) {
+    @PostMapping("/add/{imageId}")
+    public ResponseEntity<Response> addComement(@PathVariable Long imageId, @RequestBody Comment comment) {
     
-        Response response = commentService.addComent(comment);
+        Response response = commentService.addComent(imageId, comment);
         
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
@@ -62,11 +63,11 @@ public class CommentController {
 
     @PutMapping("/update/{commentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<Response> updateImage(
+    public ResponseEntity<Response> updateComment(
         @PathVariable Long commentId,
-        @RequestParam(required = true) String newContent
+        @RequestBody(required = true) UpdateCommentRequest request
         ) {
-        Response response = commentService.updateComment(commentId, newContent);
+        Response response = commentService.updateComment(commentId, request.getNewContent());
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 

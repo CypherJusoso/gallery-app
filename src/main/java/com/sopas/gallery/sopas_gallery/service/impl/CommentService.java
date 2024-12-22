@@ -8,11 +8,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sopas.gallery.sopas_gallery.dto.CommentDTO;
+import com.sopas.gallery.sopas_gallery.dto.CommentsByImageResponse;
+import com.sopas.gallery.sopas_gallery.dto.LightCommentDTO;
+import com.sopas.gallery.sopas_gallery.dto.LightImageDTO;
 import com.sopas.gallery.sopas_gallery.dto.Response;
 import com.sopas.gallery.sopas_gallery.entity.Comment;
+import com.sopas.gallery.sopas_gallery.entity.Image;
 import com.sopas.gallery.sopas_gallery.entity.User;
 import com.sopas.gallery.sopas_gallery.exception.OurException;
 import com.sopas.gallery.sopas_gallery.repository.CommentRepository;
+import com.sopas.gallery.sopas_gallery.repository.ImageRepository;
 import com.sopas.gallery.sopas_gallery.repository.UserRepository;
 import com.sopas.gallery.sopas_gallery.service.interfac.ICommentService;
 import com.sopas.gallery.sopas_gallery.utils.Utils;
@@ -30,9 +35,12 @@ public class CommentService implements ICommentService {
     @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    private ImageRepository imageRepository;
+
     @Override    
     @Transactional
-    public Response addComent(Comment comment) {
+    public Response addComent(Long imageId, Comment comment) {
         Response response = new Response();
 
         if(comment == null  || comment.getContent().isBlank()){
@@ -41,10 +49,23 @@ public class CommentService implements ICommentService {
             return response;
         }
         try {
+            Image image = imageRepository.findById(imageId)
+                .orElseThrow(() -> new OurException("Image Not Found"));
+            
+            User user = userRepository.findByUsername(getCurrentUsername())
+                .orElseThrow(() -> new OurException("User Not Found"));
+
+            comment.setImage(image);
+            comment.setUser(user);
+
+            Comment savedComment = commentRepository.save(comment);
+
+            CommentDTO commentDTO = Utils.mapCommentEntityToDTO(savedComment);
+
             commentRepository.save(comment);
             response.setStatusCode(201);
             response.setMessage("Comment added successfully");
-
+            response.setCommentDTO(commentDTO);
         }catch(ConstraintViolationException e){
             response.setStatusCode(400);
             response.setMessage("Validation error: " + e.getMessage());
@@ -62,11 +83,23 @@ public class CommentService implements ICommentService {
         Response response = new Response();
 
         try {
+
+            Image image = imageRepository.findById(imageId)
+            .orElseThrow(() -> new OurException("Image not found"));
+
             List<Comment> comments = commentRepository.findByImageId(imageId);
-            List<CommentDTO> commentDTOs = Utils.mapCommentListEntityToCommentListDTO(comments);
+           
+            LightImageDTO imageDTO = Utils.mapImageEntityToLightDto(image);
+
+            List<LightCommentDTO> commentDTOs = Utils.mapCommentListEntityToLightCommentListDTO(comments);
+
+            CommentsByImageResponse commentsResponse = new CommentsByImageResponse();
+            commentsResponse.setImage(imageDTO);
+            commentsResponse.setComments(commentDTOs);
+
             response.setStatusCode(200);
             response.setMessage("Comments Found Successfully");
-            response.setCommentsList(commentDTOs);
+            response.setData(commentsResponse);
         } catch (Exception e) {
             response.setStatusCode(500);
             response.setMessage("Error fetching comments " + e.getMessage());
@@ -81,7 +114,7 @@ public class CommentService implements ICommentService {
         Response response = new Response();
         try {
             List<Comment> comments = commentRepository.findByUserId(userId);
-            List<CommentDTO> commentDTOs = Utils.mapCommentListEntityToCommentListDTO(comments);
+            List<CommentDTO> commentDTOs = Utils.mapCommentListEntityWithNoUserToCommentListDTO(comments);
             response.setStatusCode(200);
             response.setMessage("Comments Found Successfully");
             response.setCommentsList(commentDTOs);
@@ -131,7 +164,7 @@ public class CommentService implements ICommentService {
             
             String authUsername = getCurrentUsername();
 
-            if(!comment.getUser().getUsername().equals(authUsername) && !isAdmin(authUsername)){
+            if(!comment.getUser().getUsername().equals(authUsername)){
                 response.setStatusCode(403);
                 response.setMessage("You do not have permission to modify this comment.");
                 return response;

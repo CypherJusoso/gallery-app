@@ -111,6 +111,12 @@ public class ImageService implements IImageService {
         try {
             List<Tag> tagList = findTags(tags);
             List<Image> images = imageRepository.findByTags(tagList, tagList.size());
+            
+            if(images.isEmpty()){
+                response.setStatusCode(404);
+                response.setMessage("No images found for the provided tags.");
+                return response;
+            }
             List<ImageDTO> imageDTOs = Utils.mapImageListEntityToImageListDTO(images);
             response.setStatusCode(200);
             response.setMessage("Images found");
@@ -242,6 +248,15 @@ public class ImageService implements IImageService {
         return response;
     }
 
+    @Override
+    public int countImagesByTag(Long tagId) {
+        try {
+             return imageRepository.countImagesByTagId(tagId);
+        } catch (Exception e) {
+            throw new RuntimeException("Error Fetching Image Count: " + e.getMessage());
+        }
+    }
+
     private List<Tag> processTags(String tagsInput){
         List<Tag> tags = new ArrayList<>();
         if(tagsInput != null && !tagsInput.trim().isEmpty()){
@@ -289,4 +304,6 @@ public class ImageService implements IImageService {
         .map(User::isAdmin)
         .orElse(false);
     }
+
+   
 }
