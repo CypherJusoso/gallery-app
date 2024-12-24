@@ -58,6 +58,11 @@ public class UserController {
         Response response = userService.getUserById(userId);
         return ResponseEntity.status(response.getStatusCode()).body(response);
     }
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<Response> getUserProfile(@PathVariable Long userId) {
+        Response response = userService.getUserById(userId);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
     @DeleteMapping("/delete/{userId}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<Response> deleteUserById(@PathVariable Long userId) {
